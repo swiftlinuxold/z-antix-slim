@@ -1,0 +1,7 @@
+At the login screen, pressing F1 for the session should only yield Rox-icewm.
+
+At the login screen, the default login is "demo".
+
+The login screen should show the standard Swift Linux background for SLiM.
+
+When you boot up the live CD, you should boot right into the system without having to log in.
