@@ -1,0 +1,10 @@
+Additional files to change:
+/etc/skel/.xinitrc
+/etc/init.d/antiX-init.sh (line 724 and below)
+/usr/share/slim/themes/antiX/slim-install.conf
+/usr/local/bin/user-management
+/usr/share/slim/slim.template
+/usr/share/antiX/localisation/en/local-bin/user-management
+
+Also need to try changing the antiX-init.sh script from 
+http://www.mepisimo.com/antix/Tarballs/antiX-M11-live.tar.gz

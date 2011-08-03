@@ -1,0 +1,730 @@
+#!/bin/bash
+# File Name: user-management
+# Version: 1.2.5
+# Purpose:  USERS ( adding, removing, recovering, repairing, and login options )
+#			GROUPS ( adding, removing, and adding users )
+#			PASSWORDS ( changing user passwords )
+# Authors: Dave and minor modifications by anticapitalista
+# Acknowledgements: AntiX forum users for suggestions, testing, and input
+# Special Acknowledgements: anticapitalista for testing, suggestions, input
+
+# Copyright (C) Tuesday, Feb. 7, 2011  by Dave / david.dejong02@gmail.com
+# License: gplv2
+# This file is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#################################################################################################################################################
+
+# Root check 
+if [[ $UID != "0" ]]; then
+ gksu user-management &
+ exit 1 ;
+fi
+
+USERA=`ls /home | cat -n | grep 1 | cut -f2` ;
+USERB=`ls /home | cat -n | grep 2 | cut -f2` ;
+USERC=`ls /home | cat -n | grep 3 | cut -f2` ;
+USERD=`ls /home | cat -n | grep 4 | cut -f2` ;
+USERE=`ls /home | cat -n | grep 5 | cut -f2` ;
+USERF=`ls /home | cat -n | grep 6 | cut -f2` ;
+USERG=`ls /home | cat -n | grep 7 | cut -f2` ;
+USERH=`ls /home | cat -n | grep 8 | cut -f2` ;
+USERI=`ls /home | cat -n | grep 9 | cut -f2` ;
+USERJ=`ls /home | cat -n | grep 10 | cut -f2` ;
+GROUPA=`cat -n /etc/user-management.conf | grep 1 | cut -f2` ;
+GROUPB=`cat -n /etc/user-management.conf | grep 2 | cut -f2` ;
+GROUPC=`cat -n /etc/user-management.conf | grep 3 | cut -f2` ;
+GROUPD=`cat -n /etc/user-management.conf | grep 4 | cut -f2` ;
+GROUPE=`cat -n /etc/user-management.conf | grep 5 | cut -f2` ;
+GROUPF=`cat -n /etc/user-management.conf | grep 6 | cut -f2` ;
+GROUPG=`cat -n /etc/user-management.conf | grep 7 | cut -f2` ;
+GROUPH=`cat -n /etc/user-management.conf | grep 8 | cut -f2` ;
+GROUPI=`cat -n /etc/user-management.conf | grep 9 | cut -f2` ;
+GROUPJ=`cat -n /etc/user-management.conf | grep 10 | cut -f2` ;
+export DIALOG='
+<window title="User Management" window-position="1" >
+<vbox>
+<notebook labels="Passwords | Add or Repair Users | Remove or Recover Users | Groups ">
+<vbox>
+  <frame Password Management>
+  <checkbox active="false">
+      <label>Enable Password Management</label>
+      <variable>PASSWDMANAGE</variable>
+      <default>no</default>
+      <action>if true enable:USER</action>
+      <action>if false disable:USER</action>
+      <action>if true enable:ROOTPASSWD</action>
+      <action>if false disable:ROOTPASSWD</action>
+      <action>if true enable:PASSWDENABLE</action>
+      <action>if false disable:PASSWDENABLE</action>
+    </checkbox>
+    <frame Choose User>
+    <checkbox active="false">
+      <visible>disabled</visible>
+      <label>Change Root Password</label>
+      <variable>ROOTPASSWD</variable>
+      <default>no</default>
+      <action>zenity --info --text "Changing root password may cause severe problems, change at own risk. Old password will be lost."</action>
+      <action>if true disable:USER</action>
+      <action>if false enable:USER</action>
+      <action>if true enable:PASSA</action>
+      <action>if false disable:PASSA</action>
+      <action>if true enable:PASSB</action>
+      <action>if false disable:PASSB</action>
+      <action>if true disable:PASSWDENABLE</action>
+      <action>if false enable:PASSWDENABLE</action>
+      <action>if true disable:AUTOLOGIN1</action>
+      <action>if true disable:DEFAULTUSER1</action>
+    </checkbox>
+    <combobox>
+	  <visible>disabled</visible>
+      <variable>USER</variable>
+      <item>No User Selected</item>
+      <item>'$USERA'</item>
+      <item>'$USERB'</item>
+      <item>'$USERC'</item>
+      <item>'$USERD'</item>
+      <item>'$USERE'</item>
+      <item>'$USERF'</item>
+      <item>'$USERG'</item>
+      <item>'$USERH'</item>
+      <item>'$USERI'</item>
+      <item>'$USERJ'</item>
+    </combobox>
+    </frame>
+    <frame Password>
+    <checkbox active="false">
+	  <visible>disabled</visible>
+      <label>Enable Password Change</label>
+      <variable>PASSWDENABLE</variable>
+      <default>no</default>
+      <action>zenity --info --text "Old password will be lost."</action>
+      <action>if true enable:PASSA</action>
+      <action>if false disable:PASSA</action>
+      <action>if true enable:PASSB</action>
+      <action>if false disable:PASSB</action>
+      <action>if true enable:DEFAULTUSER1</action>
+      <action>if false disable:DEFAULTUSER1</action>
+      <action>if true enable:AUTOLOGIN1</action>
+      <action>if false disable:AUTOLOGIN1</action>
+    </checkbox>
+	<text use-markup="true" width-chars="20">
+	<label>Password</label>
+	</text>
+    <entry>
+      <default>password</default>
+      <variable>PASSA</variable>
+      <visible>disabled</visible>
+    </entry>
+    <text use-markup="true" width-chars="20">
+	<label>Password Again</label>
+	</text>
+    <entry>
+      <default>password</default>
+      <variable>PASSB</variable>
+      <visible>disabled</visible>
+    </entry>
+    </frame>
+    <checkbox active="false">
+	  <visible>disabled</visible>
+      <label>Set As Default User</label>
+      <variable>DEFAULTUSER1</variable>
+      <default>no</default>
+    </checkbox>
+    <checkbox active="false">
+	  <visible>disabled</visible>
+      <label>Set Auto Login</label>
+      <variable>AUTOLOGIN1</variable>
+      <default>no</default>
+    </checkbox>
+	</frame>
+</vbox>
+<vbox>
+  <frame User Management>
+  <checkbox active="false">
+      <label>Enable User Management</label>
+      <variable>USERMANAGE</variable>
+      <default>no</default>
+      <action>if true enable:NEWUSER</action>
+      <action>if false disable:NEWUSER</action>
+      <action>if true enable:PASSNEWA</action>
+      <action>if false disable:PASSNEWA</action>
+      <action>if true enable:PASSNEWB</action>
+      <action>if false disable:PASSNEWB</action>
+      <action>if true enable:DEFAULTUSER2</action>
+      <action>if false disable:DEFAULTUSER2</action>
+      <action>if true enable:AUTOLOGIN2</action>
+      <action>if false disable:AUTOLOGIN2</action>
+      <action>if true enable:REPAIR</action>
+      <action>if false disable:REPAIR</action>
+    </checkbox>
+    <frame Name New User>
+    <entry>
+	  <visible>disabled</visible>
+      <default>user</default>
+      <variable>NEWUSER</variable>
+    </entry>
+    </frame>
+    <frame Add Password>
+	<text use-markup="true" width-chars="20">
+	<label>Password</label>
+	</text>
+    <entry>
+      <visible>disabled</visible>
+      <default>password</default>
+      <variable>PASSNEWA</variable>
+    </entry>
+    <text use-markup="true" width-chars="20">
+	<label>Password Again</label>
+	</text>
+    <entry>
+      <visible>disabled</visible>
+      <default>password</default>
+      <variable>PASSNEWB</variable>
+    </entry>
+    </frame>
+    <checkbox active="false">
+	  <visible>disabled</visible>
+      <label>Set As Default User</label>
+      <variable>DEFAULTUSER2</variable>
+      <default>no</default>
+    </checkbox>
+    <checkbox active="false">
+	  <visible>disabled</visible>
+      <label>Set Auto Login</label>
+      <variable>AUTOLOGIN2</variable>
+      <default>no</default>
+    </checkbox>
+   </frame>
+   <frame Repair User>
+    <checkbox active="false">
+	  <visible>disabled</visible>
+      <label>Enable User Repair</label>
+      <variable>REPAIR</variable>
+      <default>no</default>
+      <action>zenity --info --text "User will be completely restored to default settings. You are recommended to backup your home folder before proceeding." ;</action>
+      <action>if true enable:REPAIRUSER</action>
+      <action>if false disable:REPAIRUSER</action>
+    </checkbox>
+    <combobox>
+	  <visible>disabled</visible>
+      <variable>REPAIRUSER</variable>
+      <item>No User Selected</item>
+      <item>'$USERA'</item>
+      <item>'$USERB'</item>
+      <item>'$USERC'</item>
+      <item>'$USERD'</item>
+      <item>'$USERE'</item>
+      <item>'$USERF'</item>
+      <item>'$USERG'</item>
+      <item>'$USERH'</item>
+      <item>'$USERI'</item>
+      <item>'$USERJ'</item>
+    </combobox>
+   </frame>
+</vbox>
+<vbox>
+  <frame User Removal / Recovery>
+  <checkbox active="false">
+      <label>Enable User Removal / Recovery</label>
+      <variable>REMOVALRECOVER</variable>
+      <default>no</default>
+      <action>if true enable:YESDELUSER</action>
+      <action>if false disable:YESDELUSER</action>
+      <action>if true enable:RECOVERUSERFILES</action>
+      <action>if false disable:RECOVERUSERFILES</action>
+      <action>if true enable:RECOVERUSER</action>
+      <action>if false disable:RECOVERUSER</action>
+    </checkbox>
+  <frame Delete User>
+    <checkbox active="false">
+      <visible>disabled</visible>
+      <label>Enable User Delete</label>
+      <variable>YESDELUSER</variable>
+      <default>no</default>
+      <action>zenity --info --text "Delete user? User must be logged off. Recovery is possible if \"Complete Removal\" is not checked."</action>
+      <action>if true enable:DELUSER</action>
+      <action>if false disable:DELUSER</action>
+      <action>if true enable:COMPLETEREMOVAL</action>
+      <action>if false disable:COMPLETEREMOVAL</action>
+    </checkbox>
+    <frame Choose User>
+    <combobox>
+	  <visible>disabled</visible>
+      <variable>DELUSER</variable>
+      <item>No User Selected</item>
+      <item>'$USERA'</item>
+      <item>'$USERB'</item>
+      <item>'$USERC'</item>
+      <item>'$USERD'</item>
+      <item>'$USERE'</item>
+      <item>'$USERF'</item>
+      <item>'$USERG'</item>
+      <item>'$USERH'</item>
+      <item>'$USERI'</item>
+      <item>'$USERJ'</item>
+      <visible>enabled</visible>
+    </combobox>
+    <checkbox active="false">
+	  <visible>disabled</visible>
+      <label>Complete Removal</label>
+      <variable>COMPLETEREMOVAL</variable>
+      <default>no</default>
+      <action>zenity --info --text "All user information will be completely lost. You are sure you want to do this."</action>
+      <action>if true enable:DELUSER</action>
+      <action>if false disable:DELUSER</action>
+    </checkbox>
+    </frame>
+   </frame>	
+   <frame Recover User>
+    <checkbox active="false">
+	  <visible>disabled</visible>
+      <label>Recover User Files</label>
+      <variable>RECOVERUSERFILES</variable>
+      <default>no</default>
+      <action>zenity --info --text "Recover user files only? Files will be placed in ~/Files"</action>
+      <action>if true enable:USERTORECOVER</action>
+      <action>if false disable:USERTORECOVER</action>
+      <action>if true enable:RESTOREUSER</action>
+      <action>if false disable:RESTOREUSER</action>
+    </checkbox>
+    <checkbox active="false">
+      <visible>disabled</visible>
+      <label>Recover User</label>
+      <variable>RECOVERUSER</variable>
+      <default>no</default>
+      <action>zenity --info --text "Recover user? Recovered user password \"password\""</action>
+      <action>if true enable:USERTORECOVER</action>
+      <action>if false disable:USERTORECOVER</action>
+      <action>if true disable:RECOVERUSERFILES</action>
+      <action>if false enable:RECOVERUSERFILES</action>
+      <action>if true disable:RESTOREUSER</action>
+      <action>if false enable:RESTOREUSER</action>
+    </checkbox>
+    <text use-markup="true" width-chars="20">
+	<label>User Name</label>
+	</text>
+    <entry>
+	  <visible>disabled</visible>
+      <default>user</default>
+      <variable>USERTORECOVER</variable>
+    </entry>
+    <frame Choose User to restore files>
+    <combobox>
+	  <visible>disabled</visible>
+      <variable>RESTOREUSER</variable>
+      <item>No User Selected</item>
+      <item>'$USERA'</item>
+      <item>'$USERB'</item>
+      <item>'$USERC'</item>
+      <item>'$USERD'</item>
+      <item>'$USERE'</item>
+      <item>'$USERF'</item>
+      <item>'$USERG'</item>
+      <item>'$USERH'</item>
+      <item>'$USERI'</item>
+      <item>'$USERJ'</item>
+      <visible>enabled</visible>
+    </combobox>
+    </frame>
+    </frame>
+    </frame>
+</vbox>
+<vbox>
+  <frame Group Management>
+  <checkbox active="false">
+      <label>Enable Group Management</label>
+      <variable>GROUPMANAGE</variable>
+      <default>no</default>
+      <action>zenity --info --text "You can only REMOVE or ADD MEMBERS to groups that are made using this utility."</action> 
+      <action>if true enable:NEWGROUP</action>
+      <action>if false disable:NEWGROUP</action>
+      <action>if true enable:YESDELGROUP</action>
+      <action>if false disable:YESDELGROUP</action>
+      <action>if true enable:ADDUSERGROUP</action>
+      <action>if false disable:ADDUSERGROUP</action>
+    </checkbox>
+    <frame Name New Group>
+    <entry>
+      <visible>disabled</visible>
+      <default>group</default>
+      <variable>NEWGROUP</variable>
+    </entry>
+    </frame>
+   </frame>
+  <frame Delete Group>
+    <checkbox active="false">
+      <visible>disabled</visible>
+      <label>Enable Group Delete</label>
+      <variable>YESDELGROUP</variable>
+      <default>no</default>
+      <action>zenity --info --text "Delete group? Group and all members will be lost."</action>
+      <action>if true enable:DELGROUP</action>
+      <action>if false disable:DELGROUP</action>
+    </checkbox>
+    <frame Choose Group>
+    <combobox>
+	  <visible>disabled</visible>
+      <variable>DELGROUP</variable>
+      <item>No User Selected</item>
+      <item>'$GROUPA'</item>
+      <item>'$GROUPB'</item>
+      <item>'$GROUPC'</item>
+      <item>'$GROUPD'</item>
+      <item>'$GROUPE'</item>
+      <item>'$GROUPF'</item>
+      <item>'$GROUPG'</item>
+      <item>'$GROUPH'</item>
+      <item>'$GROUPI'</item>
+      <item>'$GROUPJ'</item>
+      <visible>enabled</visible>
+    </combobox>
+    </frame>
+    </frame>
+    <frame Add Users to Group>
+    <checkbox active="false">
+      <visible>disabled</visible>
+      <label>Enable Add Users to Groups</label>
+      <variable>ADDUSERGROUP</variable>
+      <default>no</default>
+      <action>if true enable:GROUP</action>
+      <action>if false disable:GROUP</action>
+      <action>if true enable:GROUPUSER</action>
+      <action>if false disable:GROUPUSER</action>
+    </checkbox>
+    <frame Choose Group>
+    <combobox>
+      <visible>disabled</visible>
+      <variable>GROUP</variable>
+      <item>No group Selected</item>
+      <item>'$GROUPA'</item>
+      <item>'$GROUPB'</item>
+      <item>'$GROUPC'</item>
+      <item>'$GROUPD'</item>
+      <item>'$GROUPE'</item>
+      <item>'$GROUPF'</item>
+      <item>'$GROUPG'</item>
+      <item>'$GROUPH'</item>
+      <item>'$GROUPI'</item>
+      <item>'$GROUPJ'</item>
+      <visible>enabled</visible>
+    </combobox>
+    </frame>
+    <frame Choose User>
+    <combobox>
+      <visible>disabled</visible>
+      <variable>GROUPUSER</variable>
+      <item>No User Selected</item>
+      <item>'$USERA'</item>
+      <item>'$USERB'</item>
+      <item>'$USERC'</item>
+      <item>'$USERD'</item>
+      <item>'$USERE'</item>
+      <item>'$USERF'</item>
+      <item>'$USERG'</item>
+      <item>'$USERH'</item>
+      <item>'$USERI'</item>
+      <item>'$USERJ'</item>
+      <visible>enabled</visible>
+    </combobox>
+    </frame>
+   </frame>	
+</vbox>
+</notebook>
+  <hbox>
+ 	<button ok></button>
+ 	<button cancel></button>
+  </hbox>
+  </vbox>
+</window>
+'
+
+I=$IFS; IFS=""
+for STATEMENTS in  $(gtkdialog --program DIALOG); do
+  eval $STATEMENTS
+done
+IFS=$I
+
+if [ "$EXIT" = "OK" ] ; then
+
+ if [ "$PASSWDMANAGE" = "true" ] ; then
+ cp /etc/slim.conf /etc/slim.conf.old ;
+ if [ "$ROOTPASSWD" = "true" ] ; then
+   if [ "$PASSA" = "$PASSB" ] ; then
+    if [ "$PASSA" = "" ] ; then
+    zenity --error --text "Cannot have no password.";
+    user-management ;
+    else
+    echo "$PASSA" > /tmp/.passwd.txt ;
+    echo "$PASSB" >> /tmp/.passwd.txt ;
+    passwd root < /tmp/.passwd.txt ;
+    rm /tmp/.passwd.txt;
+    zenity --info --text "Password changed.";
+    fi
+   else 
+   zenity --error --text "Passwords do not match." ;
+   user-management ;
+   fi
+  else  
+  if [ "$USER" = "No User Selected" ] ; then
+  zenity --error --text "No user selected.";
+  user-management;
+  else 
+  if [ "$PASSWDENABLE" = "true" ] ; then
+  if [ "$PASSA" = "$PASSB" ] ; then
+   if [ "$PASSA" = "" ] ; then
+   zenity --error --text "Cannot have no password.";
+   user-management ;
+   else
+   echo "$PASSA" > /tmp/.passwd.txt ;
+   echo "$PASSB" >> /tmp/.passwd.txt ;
+   passwd $USER < /tmp/.passwd.txt ;
+   rm /tmp/.passwd.txt;
+   if [ "$AUTOLOGIN1" = "true" ] ; then
+   echo "####slim.conf genertated by Dave's user management script####" > /etc/slim.conf ;
+   echo "####Original copy of slim.conf renamed /etc/slim.conf.old####" >> /etc/slim.conf ;
+   echo "default_path        ./:/bin:/usr/bin:/usr/local/bin:/usr/X11R6/bin" >> /etc/slim.conf ;
+   echo "xserver     /usr/bin/X" >> /etc/slim.conf ;
+   echo "xserver_arguments   -dpi 96 -nolisten tcp" >> /etc/slim.conf ;
+   echo "halt_cmd            /sbin/shutdown -h now" >> /etc/slim.conf ;
+   echo "reboot_cmd          /sbin/shutdown -r now" >> /etc/slim.conf ;
+   echo "console_cmd         /usr/bin/urxvt -C -fg white -bg black +sb -T \"Console login" -e /bin/sh -c "/bin/cat /etc/issue; exec /bin/login\"" >> /etc/slim.conf ;
+   echo "xauth_path         /usr/bin/xauth " >> /etc/slim.conf ;
+   echo "authfile           /var/run/slim.auth" >> /etc/slim.conf ;
+   echo "numlock             off" >> /etc/slim.conf ;
+   echo "hidecursor         true" >> /etc/slim.conf ;
+   echo "login_cmd exec ck-launch-session dbus-launch /bin/bash -login ~/.xinitrc %session >~/.xsession-errors 2>&1" >> /etc/slim.conf ;
+   echo "sessions            Rox-icewm" >> /etc/slim.conf ;
+   echo "screenshot_cmd      scrot /tmp/slim.png" >> /etc/slim.conf ;
+   echo "welcome_msg         (Press F1 to toggle sessions F11 to take screen shot)" >> /etc/slim.conf ;
+   echo "shutdown_msg       The system is shutting down..." >> /etc/slim.conf ;
+   echo "reboot_msg         The system is rebooting..." >> /etc/slim.conf ;
+   echo "current_theme       antiX" >> /etc/slim.conf ;
+   echo "lockfile            /var/run/slim.lock" >> /etc/slim.conf ;
+   echo "logfile             /var/log/slim.log" >> /etc/slim.conf ;
+   echo "auto_login          yes" >> /etc/slim.conf ;
+   echo "default_user        $USER" >> /etc/slim.conf ;
+   zenity --info --text "Auto login set." ;
+   else 
+    if [ "$DEFAULTUSER1" = "true" ] ; then
+    echo "####slim.conf genertated by Dave's user management script####" > /etc/slim.conf ;
+    echo "####Original copy of slim.conf renamed /etc/slim.conf.old####" >> /etc/slim.conf ;
+    echo "default_path        ./:/bin:/usr/bin:/usr/local/bin:/usr/X11R6/bin" >> /etc/slim.conf ;
+    echo "xserver     /usr/bin/X" >> /etc/slim.conf ;
+    echo "xserver_arguments   -dpi 96 -nolisten tcp" >> /etc/slim.conf ;
+    echo "halt_cmd            /sbin/shutdown -h now" >> /etc/slim.conf ;
+    echo "reboot_cmd          /sbin/shutdown -r now" >> /etc/slim.conf ;
+    echo "console_cmd         /usr/bin/urxvt -C -fg white -bg black +sb -T \"Console login" -e /bin/sh -c "/bin/cat /etc/issue; exec /bin/login\"" >> /etc/slim.conf ;
+    echo "xauth_path         /usr/bin/xauth " >> /etc/slim.conf ;
+    echo "authfile           /var/run/slim.auth" >> /etc/slim.conf ;
+    echo "numlock             off" >> /etc/slim.conf ;
+    echo "hidecursor         true" >> /etc/slim.conf ;
+    echo "login_cmd exec ck-launch-session dbus-launch /bin/bash -login ~/.xinitrc %session >~/.xsession-errors 2>&1" >> /etc/slim.conf ;
+    echo "sessions            fluxbox,Rox-fluxbox,Rox-icewm,icewm,dwm,wmii,lxde,xfce,fvwm-crystal,kde,gnome,openbox" >> /etc/slim.conf ;
+    echo "screenshot_cmd      scrot /tmp/slim.png" >> /etc/slim.conf ;
+    echo "welcome_msg         (Press F1 to toggle sessions F11 to take screen shot)" >> /etc/slim.conf ;
+    echo "shutdown_msg       The system is shutting down..." >> /etc/slim.conf ;
+    echo "reboot_msg         The system is rebooting..." >> /etc/slim.conf ;
+    echo "current_theme       antiX" >> /etc/slim.conf ;
+    echo "lockfile            /var/run/slim.lock" >> /etc/slim.conf ;
+    echo "logfile             /var/log/slim.log" >> /etc/slim.conf ;
+    echo "default_user        $USER" >> /etc/slim.conf ;
+    zenity --info --text "Default User Set." ;
+    else
+    zenity --info --text "Password Changed.";
+    fi
+   fi
+   fi
+  else
+  zenity --error --text "Passwords do not match." ;
+  user-management ;
+  fi
+  else
+  zenity --error --text "No options selected." ; 
+  user-management ;
+  fi
+  fi
+  fi
+ else
+ if [ "$USERMANAGE" = "true" ] ; then
+ if [ "$REPAIR" = "true" ] ; then 
+ rm /home/$REPAIRUSER/.* ;
+ COPY=`ls -a /etc/skel/` ;
+ cp -r /etc/skel/$COPY -t /home/$REPAIRUSER ;
+ cd /home/ ;
+ chown $REPAIRUSER:users $REPAIRUSER -R ;
+ zenity --info --text "User repaired, defaults set. Logging out now!" ;
+ logouthelper.sh ;
+ else 
+  if [ "$NEWUSER" = "user" ] ; then
+  zenity --error --text "Invalid user name.";
+  user-management ;
+  else
+  if [ "$PASSNEWA" = "$PASSNEWB" ] ; then
+   if [ "$PASSNEWA" = "" ] ; then
+   zenity --error --text "Cannot have no password.";
+   user-management ;
+   else
+   echo "$PASSNEWA" > /tmp/.newuser.txt ;
+   echo "$PASSNEWB" >> /tmp/.newuser.txt ;
+   echo " " >> /tmp/.newuser.txt ;
+   echo " " >> /tmp/.newuser.txt ;
+   echo " " >> /tmp/.newuser.txt ;
+   echo " " >> /tmp/.newuser.txt ;
+   echo " " >> /tmp/.newuser.txt ;
+   echo "y" >> /tmp/.newuser.txt ;
+   adduser --force-badname $NEWUSER < /tmp/.newuser.txt ;
+   rm /tmp/.newuser.txt;
+   if [ "$AUTOLOGIN2" = "true" ] ; then
+   echo "####slim.conf genertated by Dave's user management script####" > /etc/slim.conf ;
+   echo "####Original copy of slim.conf renamed /etc/slim.conf.old####" >> /etc/slim.conf ;
+   echo "default_path        ./:/bin:/usr/bin:/usr/local/bin:/usr/X11R6/bin" >> /etc/slim.conf ;
+   echo "xserver     /usr/bin/X" >> /etc/slim.conf ;
+   echo "xserver_arguments   -dpi 96 -nolisten tcp" >> /etc/slim.conf ;
+   echo "halt_cmd            /sbin/shutdown -h now" >> /etc/slim.conf ;
+   echo "reboot_cmd          /sbin/shutdown -r now" >> /etc/slim.conf ;
+   echo "console_cmd         /usr/bin/urxvt -C -fg white -bg black +sb -T \"Console login" -e /bin/sh -c "/bin/cat /etc/issue; exec /bin/login\"" >> /etc/slim.conf ;
+   echo "xauth_path         /usr/bin/xauth " >> /etc/slim.conf ;
+   echo "authfile           /var/run/slim.auth" >> /etc/slim.conf ;
+   echo "numlock             off" >> /etc/slim.conf ;
+   echo "hidecursor         true" >> /etc/slim.conf ;
+   echo "login_cmd exec ck-launch-session dbus-launch /bin/bash -login ~/.xinitrc %session >~/.xsession-errors 2>&1" >> /etc/slim.conf ;
+   echo "sessions            fluxbox,Rox-fluxbox,Rox-icewm,icewm,dwm,wmii,lxde,xfce,fvwm-crystal,kde,gnome,openbox" >> /etc/slim.conf ;
+   echo "screenshot_cmd      scrot /tmp/slim.png" >> /etc/slim.conf ;
+   echo "welcome_msg         (Press F1 to toggle sessions F11 to take screen shot)" >> /etc/slim.conf ;
+   echo "shutdown_msg       The system is shutting down..." >> /etc/slim.conf ;
+   echo "reboot_msg         The system is rebooting..." >> /etc/slim.conf ;
+   echo "current_theme       antiX" >> /etc/slim.conf ;
+   echo "lockfile            /var/run/slim.lock" >> /etc/slim.conf ;
+   echo "logfile             /var/log/slim.log" >> /etc/slim.conf ;
+   echo "auto_login          yes" >> /etc/slim.conf ;
+   echo "default_user        $NEWUSER" >> /etc/slim.conf ;
+   zenity --info --text "Auto login set." ;
+   else 
+    if [ "$DEFAULTUSER2" = "true" ] ; then
+    echo "####slim.conf genertated by Dave's user management script####" > /etc/slim.conf ;
+    echo "####Original copy of slim.conf renamed /etc/slim.conf.old####" >> /etc/slim.conf ;
+    echo "default_path        ./:/bin:/usr/bin:/usr/local/bin:/usr/X11R6/bin" >> /etc/slim.conf ;
+    echo "xserver     /usr/bin/X" >> /etc/slim.conf ;
+    echo "xserver_arguments   -dpi 96 -nolisten tcp" >> /etc/slim.conf ;
+    echo "halt_cmd            /sbin/shutdown -h now" >> /etc/slim.conf ;
+    echo "reboot_cmd          /sbin/shutdown -r now" >> /etc/slim.conf ;
+    echo "console_cmd         /usr/bin/urxvt -C -fg white -bg black +sb -T \"Console login" -e /bin/sh -c "/bin/cat /etc/issue; exec /bin/login\"" >> /etc/slim.conf ;
+    echo "xauth_path         /usr/bin/xauth " >> /etc/slim.conf ;
+    echo "authfile           /var/run/slim.auth" >> /etc/slim.conf ;
+    echo "numlock             off" >> /etc/slim.conf ;
+    echo "hidecursor         true" >> /etc/slim.conf ;
+    echo "login_cmd exec ck-launch-session dbus-launch /bin/bash -login ~/.xinitrc %session >~/.xsession-errors 2>&1" >> /etc/slim.conf ;
+    echo "sessions            fluxbox,Rox-fluxbox,Rox-icewm,icewm,dwm,wmii,lxde,xfce,fvwm-crystal,kde,gnome,openbox" >> /etc/slim.conf ;
+    echo "screenshot_cmd      scrot /tmp/slim.png" >> /etc/slim.conf ;
+    echo "welcome_msg         (Press F1 to toggle sessions F11 to take screen shot)" >> /etc/slim.conf ;
+    echo "shutdown_msg       The system is shutting down..." >> /etc/slim.conf ;
+    echo "reboot_msg         The system is rebooting..." >> /etc/slim.conf ;
+    echo "current_theme       antiX" >> /etc/slim.conf ;
+    echo "lockfile            /var/run/slim.lock" >> /etc/slim.conf ;
+    echo "logfile             /var/log/slim.log" >> /etc/slim.conf ;
+    echo "default_user        $NEWUSER" >> /etc/slim.conf ;
+    zenity --info --text "Default user set." ;
+    else
+    zenity --info --text "New user added.";
+    fi
+   fi
+   fi
+   else 
+   zenity --error --text "Passwords do not match." ;
+   user-management ;
+  fi
+  fi
+  fi
+ else
+ if [ "$REMOVALRECOVER" = "true" ] ; then
+  if [ "$YESDELUSER" = "true" ] ; then
+   if [ "$DELUSER" = "No User Selected" ] ; then
+   zenity --error --text "No user selected to remove.";
+   user-management ;
+   else
+    if [ "$COMPLETEREMOVAL" = "true" ] ; then
+    killall -u $DELUSER ;
+    deluser --force --remove-home $DELUSER ;
+    rm /var/user/backup/$DELUSER.tar.bz2 ;
+    zenity --info --text "User completely removed.";
+    else
+    mkdir /var/user;
+    mkdir /var/user/backup;
+    deluser --force --backup --backup-to /var/user/backup --remove-home $DELUSER ;
+    zenity --info --text "User removed. Files have been backed up to /var/user/backup" ;
+    fi
+   fi
+  else
+   if [ "$RECOVERUSER" = "true" ] ; then
+   BACKUP=`ls /var/user/backup |grep $USERTORECOVER` ;
+   cd /var/user/backup ;
+   tar -jxf $BACKUP ;
+   cd home ;
+   cp $USERTORECOVER -t /home/ -r ;
+   echo "password" > /tmp/.newuser.txt ;
+   echo "password" >> /tmp/.newuser.txt ;
+   echo " " >> /tmp/.newuser.txt ;
+   echo " " >> /tmp/.newuser.txt ;
+   echo " " >> /tmp/.newuser.txt ;
+   echo " " >> /tmp/.newuser.txt ;
+   echo " " >> /tmp/.newuser.txt ;
+   echo "y" >> /tmp/.newuser.txt ;
+   adduser --force-badname --no-create-home --home /home/$USERTORECOVER $USERTORECOVER < /tmp/.newuser.txt ;
+   rm /tmp/.newuser.txt;
+   cd /home/ ;
+   chown $USERTORECOVER:users $USERTORECOVER -R ;
+   zenity --info --text "User recovered.";
+   else
+    if [ "$RECOVERUSERFILES" = "true" ] ; then
+    BACKUP=`ls /var/user/backup |grep $USERTORECOVER` ;
+    cd /var/user/backup ;
+    tar -jxf $BACKUP ;
+    cd home ;
+    cp $USERTORECOVER -t /home/$RESTOREUSER -r ;
+    cd /home/$RESTOREUSER/
+    chown $RESTOREUSER:users $USERTORECOVER -R ;
+    else
+    zenity --error --text "No options selected." ; 
+    user-management ;
+    fi
+   fi
+  fi
+ else
+ if [ "$GROUPMANAGE" = "true" ] ; then
+  if [ "$YESDELGROUP" = "true" ]; then
+  NEWUSERMANAGEMENT=`grep -v $DELGROUP /etc/user-management.conf` ;
+  echo "$NEWUSERMANAGEMENT" > /etc/user-management.conf ; 
+  delgroup $DELGROUP;
+  zenity --info --text "Group removed.";
+  else
+   if [ "$ADDUSERGROUP" = "true" ] ; then
+   adduser $GROUPUSER $GROUP ;
+   else
+    if [ "$NEWGROUP" = "group" ] ; then 
+	zenity --error --text "Invalid group." ;
+    user-management;
+    else
+    touch /etc/user-management.conf
+    echo "$NEWGROUP" >> /etc/user-management.conf
+    addgroup $NEWGROUP; 
+	fi
+   fi
+  fi
+ else
+ user-management;
+ fi
+ fi
+ fi
+ fi
+fi
