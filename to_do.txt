@@ -1,3 +1,9 @@
+The critical file is /etc/slim.conf .  The available options under sessions in this file are the ones that show up when you press the F1 key in SLiM.
+
+Changing this file is enough when running the desktop script or running the live CD.  (The /etc/slim.conf file is preserved in the live CD.)
+
+However, when you install Swift Linux, the /etc/slim.conf file is overwritten, and the changes are gone.
+
 Additional files to change:
 /etc/skel/.xinitrc
 /etc/init.d/antiX-init.sh (line 724 and below)

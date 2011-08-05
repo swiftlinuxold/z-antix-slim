@@ -530,7 +530,7 @@ if [ "$EXIT" = "OK" ] ; then
     echo "numlock             off" >> /etc/slim.conf ;
     echo "hidecursor         true" >> /etc/slim.conf ;
     echo "login_cmd exec ck-launch-session dbus-launch /bin/bash -login ~/.xinitrc %session >~/.xsession-errors 2>&1" >> /etc/slim.conf ;
-    echo "sessions            fluxbox,Rox-fluxbox,Rox-icewm,icewm,dwm,wmii,lxde,xfce,fvwm-crystal,kde,gnome,openbox" >> /etc/slim.conf ;
+    echo "sessions            Rox-icewm" >> /etc/slim.conf ;
     echo "screenshot_cmd      scrot /tmp/slim.png" >> /etc/slim.conf ;
     echo "welcome_msg         (Press F1 to toggle sessions F11 to take screen shot)" >> /etc/slim.conf ;
     echo "shutdown_msg       The system is shutting down..." >> /etc/slim.conf ;
@@ -599,7 +599,7 @@ if [ "$EXIT" = "OK" ] ; then
    echo "numlock             off" >> /etc/slim.conf ;
    echo "hidecursor         true" >> /etc/slim.conf ;
    echo "login_cmd exec ck-launch-session dbus-launch /bin/bash -login ~/.xinitrc %session >~/.xsession-errors 2>&1" >> /etc/slim.conf ;
-   echo "sessions            fluxbox,Rox-fluxbox,Rox-icewm,icewm,dwm,wmii,lxde,xfce,fvwm-crystal,kde,gnome,openbox" >> /etc/slim.conf ;
+   echo "sessions            Rox-icewm" >> /etc/slim.conf ;
    echo "screenshot_cmd      scrot /tmp/slim.png" >> /etc/slim.conf ;
    echo "welcome_msg         (Press F1 to toggle sessions F11 to take screen shot)" >> /etc/slim.conf ;
    echo "shutdown_msg       The system is shutting down..." >> /etc/slim.conf ;
@@ -625,7 +625,7 @@ if [ "$EXIT" = "OK" ] ; then
     echo "numlock             off" >> /etc/slim.conf ;
     echo "hidecursor         true" >> /etc/slim.conf ;
     echo "login_cmd exec ck-launch-session dbus-launch /bin/bash -login ~/.xinitrc %session >~/.xsession-errors 2>&1" >> /etc/slim.conf ;
-    echo "sessions            fluxbox,Rox-fluxbox,Rox-icewm,icewm,dwm,wmii,lxde,xfce,fvwm-crystal,kde,gnome,openbox" >> /etc/slim.conf ;
+    echo "sessions            Rox-icewm" >> /etc/slim.conf ;
     echo "screenshot_cmd      scrot /tmp/slim.png" >> /etc/slim.conf ;
     echo "welcome_msg         (Press F1 to toggle sessions F11 to take screen shot)" >> /etc/slim.conf ;
     echo "shutdown_msg       The system is shutting down..." >> /etc/slim.conf ;

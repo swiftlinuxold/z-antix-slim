@@ -1,0 +1,17 @@
+#xset m 10 2
+xmodmap -e 'pointer = 1 2 3 4 5'
+
+
+# The following line gets changed by antiX-init.sh with the desktop= cheatcode
+XINITRC_DEFAULT="icewm-session"
+
+case $1 in
+
+Rox-icewm)
+        sed -i -e 's/fehbgice/fehbgrox-ice/g' ~/.icewm/startup
+        sh ~/.fehbgrox-ice &
+        rox --pinboard=antiX-ice
+        exec icewm
+        ;;
+
+esac
