@@ -62,4 +62,7 @@ else
   	chown demo:users /usr/share/antiX/localisation/en/local-bin/user-management
 fi
 
+# NOTE: The file /usr/share/slim/themes/antiX/slim-install.conf on the LIVE CD
+# needs to be replaced.
+
 exit 0
