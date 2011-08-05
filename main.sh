@@ -64,5 +64,8 @@ fi
 
 # NOTE: The file /usr/share/slim/themes/antiX/slim-install.conf on the LIVE CD
 # needs to be replaced.
+FILE_TO_COPY=$DIR_DEVELOP/slim/usr_share_slim_themes_antiX/slim-install.conf
+rm /usr/share/slim/themes/antiX/slim-install.conf
+cp $FILE_TO_COPY /usr/share/slim/themes/antiX
 
 exit 0
